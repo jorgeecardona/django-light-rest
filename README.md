@@ -8,15 +8,14 @@ Basically one can't define a handler of an url based on the http method directly
 A good way to add this separation is to always use a central rest dispatcher like this:
 
 `
-url(r'^rest/users/?$', 'core.rest.dispatcher', {
-    'GET'  : 'core.rest.users.list',
-    'POST' : 'core.rest.users.create',
-    }),
-
-url(r'^rest/users/(?P<user_id>[^/]+)/?$', 'core.rest.dispatcher', {
-    'GET': 'core.rest.users.retrieve'
-    }),
-
+    url(r'^rest/users/?$', 'core.rest.dispatcher', {
+        'GET'  : 'core.rest.users.list',
+        'POST' : 'core.rest.users.create',
+        }),
+    
+    url(r'^rest/users/(?P<user_id>[^/]+)/?$', 'core.rest.dispatcher', {
+        'GET': 'core.rest.users.retrieve'
+        }),
 `
 
 ## rest dispatcher
