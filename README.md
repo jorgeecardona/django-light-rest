@@ -1,4 +1,4 @@
-# Django light rest
+# Django light REST
 
 This project is a collection of files that ease the definition of a rest interface in django.
 
