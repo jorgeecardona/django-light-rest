@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.utils import simplejson
 from django.db.models.query import QuerySet
 from django.db.models import Model
+from django.db.models.base import ModelBase
 
 class IncorrectMethod(Exception):
     pass
@@ -123,3 +124,20 @@ def create(form = None, collection=None, create_method=None, fields = None, add_
         return new_f
     return dec
 
+
+def delete(collection = None, get_entity = None):
+    def dec(f):
+        def new_f(request, *args, **kwords):
+
+            if callable(get_entity):
+                entity = get_entity(*args, **kwords)
+                entity.delete()
+                return HttpResponse(simplejson.dumps(True))
+
+            result = f(request, *args, **kwords)
+            if result:
+                return HttpResponse(simplejson.dumps(True))
+            return HttpResponse(simplejson.dumps(False))
+
+        return new_f
+    return dec
