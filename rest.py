@@ -141,3 +141,30 @@ def delete(collection = None, get_entity = None):
 
         return new_f
     return dec
+
+
+def update(fields = None):
+    def dec(f):
+        def new_f(request, *args, **kwords):
+
+            result = f(request, *args, **kwords)
+
+            if result is None:
+                res = HttpResponse('')
+                res.status_code = 400
+                return res
+            
+            # Check for the result type
+            if not isinstance(result, (Model,)):
+                raise IncorrectResult("Incorrect result returned by retrieve.")
+
+            # Select the right fields
+            result_list = from_entity_to_dict(result, fields, add_to_dict)
+                
+            # Serialize the object
+            result_string = simplejson.dumps(result_list)
+
+            # Return the string
+            return HttpResponse(result_string)
+        return new_f
+    return dec
