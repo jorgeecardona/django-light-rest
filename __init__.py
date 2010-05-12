@@ -13,7 +13,7 @@ def url_rest(regexp, get = None, post = None, put = None, delete = None):
         methods['PUT'] = put
 
     if delete:
-        methods['DELET'] = delete
+        methods['DELETE'] = delete
 
     return url(regexp, 'core.rest.dispatcher', delete)
 
