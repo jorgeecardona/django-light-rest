@@ -8,16 +8,18 @@ Basically one can't define a handler of an url based on the http method directly
 
 This separation is needed for a rest interface in order to separate responsabilities on actions.
 
-A good way to add this separation is to always use a central rest dispatcher like this:
+A good way to add this separation is to always use a central rest dispatcher with a new funcion like this:
 
-    url(r'^rest/users/?$', 'core.rest.dispatcher', {
-        'GET'  : 'core.rest.users.list',
-        'POST' : 'core.rest.users.create',
-        }),
-    
-    url(r'^rest/users/(?P<user_id>[^/]+)/?$', 'core.rest.dispatcher', {
-        'GET': 'core.rest.users.retrieve'
-        }),
+    url_rest(r'^users/?$',  
+             get = 'core.rest.user.list',
+             post = 'core.rest.user.create'
+             ),
+
+    url_rest(r'^users/(?P<user_id>[^/]+)/?$',  
+             get = 'core.rest.user.retrieve',
+             put = 'core.rest.user.update',
+	     delete = 'core.rest.user.delete',
+             ),
 
 We can now define a different handler for each method in a single url without add code to the handlers itself, the `core.rest.dispatcher` does the trick.
 
