@@ -18,7 +18,7 @@ A good way to add this separation is to always use a central rest dispatcher wit
     url_rest(r'^users/(?P<user_id>[^/]+)/?$',  
              get = 'core.rest.user.retrieve',
              put = 'core.rest.user.update',
-	     delete = 'core.rest.user.delete',
+             delete = 'core.rest.user.delete',
              ),
 
 We can now define a different handler for each method in a single url without add code to the handlers itself, the `core.rest.dispatcher` does the trick.
