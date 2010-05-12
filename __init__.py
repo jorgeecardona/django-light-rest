@@ -1,5 +1,23 @@
 from django.http import HttpResponse
 
+def url_rest(regexp, get = None, post = None, put = None, delete = None):
+
+    methods = {}
+    if get:
+        methods['GET'] = get
+        
+    if post:
+        methods['POST'] = post
+
+    if put:
+        methods['PUT'] = put
+
+    if delete:
+        methods['DELET'] = delete
+
+    return url(regexp, 'core.rest.dispatcher', delete)
+
+
 def dispatcher(request, GET=None, POST=None, DELETE=None, PUT=None, **kwords):
 
     if request.method == 'GET' and type(GET) is str:

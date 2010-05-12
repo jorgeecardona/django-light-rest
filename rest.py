@@ -4,6 +4,16 @@ from django.db.models.query import QuerySet
 from django.db.models import Model
 from django.db.models.base import ModelBase
 
+class Error(Exception):
+    """
+    Rest Error
+    ==========
+
+    This class is used to create a rest response with an error.
+    """
+    pass
+
+
 class IncorrectMethod(Exception):
     pass
 
@@ -26,13 +36,18 @@ def from_entity_to_dict(entity, fields = None, add_to_dict = None):
     
     return dict(first)
 
-def retrieve(fields = None, add_to_dict = None, timestamp = None, collection = None):
+def retrieve(fields = None, add_to_dict = None, timestamp = None, collection = None, mimetype = "text/html"):
     def dec(f):
         def new_f(request, *args, **kwords):
 
             # Call the function, it suppose to return a QueryDict
             result = f(request, *args, **kwords)
             
+            # IF image return it as is.
+            # TODO: Check a formal way to change actions in contextual way.
+            if mimetype == "image/png":
+                return HttpResponse(result, mimetype=mimetype)
+
             # Check for the result type
             if not isinstance(result, (Model, QuerySet)):
                 raise IncorrectResult("Incorrect result returned by retrieve.")
@@ -52,20 +67,25 @@ def retrieve(fields = None, add_to_dict = None, timestamp = None, collection = N
             # Serialize the object
             result_string = simplejson.dumps(result_list)
 
-            # Return the string
-            return HttpResponse(result_string)
+            # Return the string                
+            return HttpResponse(result_string, mimetype = mimetype)
 
         return new_f
     return dec
 
-def list(fields = None, add_to_dict = None, timestamp = None, collection = None):
+def list(fields = None, add_to_dict = None, timestamp = None, collection = None, mimetype = "text/html"):
     def dec(f):
         def new_f(request, *args, **kwords):
 
             if request.method == 'GET':
                 
                 # Call the function, it suppose to return a QuerySet or a list, 
-                result = f(request, *args, **kwords)
+                try:
+                    result = f(request, *args, **kwords)
+                except Error, e:
+                    # Create a response with an error code but with the error message.
+                    return HttpResponse('')
+                
                 
                 # Check for the result type
                 if type(result) is not QuerySet:
@@ -82,7 +102,7 @@ def list(fields = None, add_to_dict = None, timestamp = None, collection = None)
                 result_string = simplejson.dumps(result_list)
 
                 # Return the string
-                return HttpResponse(result_string)
+                return HttpResponse(result_string, mimetype = mimetype)
             else:
                 raise IncorrectMethod("Incorrect retrieve methd, use only GET.")
 
@@ -91,7 +111,7 @@ def list(fields = None, add_to_dict = None, timestamp = None, collection = None)
 
 from django.forms import Form
 
-def create(form = None, collection=None, create_method=None, fields = None, add_to_dict = None):
+def create(form = None, collection=None, create_method=None, fields = None, add_to_dict = None, mimetype = "text/html"):
     def dec(f):
         def new_f(request, *args, **kwords):
 
@@ -119,7 +139,7 @@ def create(form = None, collection=None, create_method=None, fields = None, add_
             result_string = simplejson.dumps(result_list)
 
             # Return the string
-            return HttpResponse(result_string)
+            return HttpResponse(result_string, mimetype = mimetype)
                     
         return new_f
     return dec
