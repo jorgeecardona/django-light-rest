@@ -36,12 +36,26 @@ def from_entity_to_dict(entity, fields = None, add_to_dict = None):
     
     return dict(first)
 
-def retrieve(fields = None, add_to_dict = None, timestamp = None, collection = None, mimetype = "text/html"):
+def retrieve(fields = None, add_to_dict = None, timestamp = None, mimetype = "text/html", auth=None):
     def dec(f):
         def new_f(request, *args, **kwords):
 
+            # Identify agent
+#            agent = rbac.identfy_from_request(request)
+
+            # Authenticate agent
+#            if rbac.authenticate_agent():
+#                pass
+
+            # Authorize
+            
+
             # Call the function, it suppose to return a QueryDict
-            result = f(request, *args, **kwords)
+            try:
+                result = f(request, *args, **kwords)
+            except Exception, e:
+                # Create a response with an error code but with the error message.
+                return HttpResponse(e, status=400)                
             
             # IF image return it as is.
             # TODO: Check a formal way to change actions in contextual way.
@@ -121,6 +135,8 @@ def create(form = None, collection=None, create_method=None, fields = None, add_
             if type(collection) is None:
                 pass
 
+
+
             result = f(request, *args, **kwords)
 
             if result is None:
@@ -145,19 +161,19 @@ def create(form = None, collection=None, create_method=None, fields = None, add_
     return dec
 
 
-def delete(collection = None, get_entity = None):
+def delete(collection = None):
     def dec(f):
         def new_f(request, *args, **kwords):
 
-            if callable(get_entity):
-                entity = get_entity(*args, **kwords)
-                entity.delete()
-                return HttpResponse(simplejson.dumps(True))
+            try:
+                result = f(request, *args, **kwords)
+                result.delete()
 
-            result = f(request, *args, **kwords)
-            if result:
-                return HttpResponse(simplejson.dumps(True))
-            return HttpResponse(simplejson.dumps(False))
+            except Exception, e:
+                # Create a response with an error code but with the error message.
+                return HttpResponse(e, status=400)
+
+            return HttpResponse('', status=204)
 
         return new_f
     return dec

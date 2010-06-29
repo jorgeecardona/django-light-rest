@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 
+from django.conf.urls.defaults import url
 def url_rest(regexp, get = None, post = None, put = None, delete = None):
 
     methods = {}
@@ -15,7 +16,7 @@ def url_rest(regexp, get = None, post = None, put = None, delete = None):
     if delete:
         methods['DELETE'] = delete
 
-    return url(regexp, 'core.rest.dispatcher', delete)
+    return url(regexp, 'core.rest.dispatcher', methods)
 
 
 def dispatcher(request, GET=None, POST=None, DELETE=None, PUT=None, **kwords):
